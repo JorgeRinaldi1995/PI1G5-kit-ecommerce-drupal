@@ -1,0 +1,63 @@
+# Composer-managed code: restored with `composer install`.
+/vendor/
+/web/core/
+/web/modules/contrib/
+/web/themes/contrib/
+/web/profiles/contrib/
+/web/libraries/
+/drush/Commands/contrib/
+
+# Files written by the Drupal core scaffold plugin on every `composer install`.
+/web/.csslintrc
+/web/.eslintignore
+/web/.eslintrc.json
+/web/.ht.router.php
+/web/.htaccess
+/web/INSTALL.txt
+/web/README.md
+/web/autoload.php
+/web/autoload_runtime.php
+/web/example.gitignore
+/web/index.php
+/web/robots.txt
+/web/update.php
+/web/modules/README.txt
+/web/profiles/README.txt
+/web/themes/README.txt
+/web/sites/README.txt
+/web/sites/default/default.services.yml
+/web/sites/default/default.settings.php
+/web/sites/development.services.yml
+/web/sites/example.settings.local.php
+/web/sites/example.sites.php
+
+# User uploads and generated files (CSS/JS aggregates, image styles).
+/web/sites/*/files/
+/web/sites/*/private/
+/private/
+
+# Per-environment settings and secrets. settings.php itself is tracked: its
+# hash_salt is empty and DDEV injects the DB credentials via settings.ddev.php.
+/web/sites/*/settings.local.php
+/web/sites/*/settings.ddev.php
+/web/sites/*/services.local.yml
+/web/sites/simpletest/
+.env
+
+# Database dumps and backups.
+*.sql
+*.sql.gz
+*.mysql
+*.tar.gz
+
+# Tests and tools (web/core/phpunit.xml is already covered by /web/core/).
+.phpunit.result.cache
+.phpunit.cache/
+
+# IDEs and operating systems.
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db
