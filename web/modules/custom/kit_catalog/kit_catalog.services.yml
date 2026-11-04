@@ -1,0 +1,4 @@
+services:
+  kit_catalog.cart_manager:
+    class: Drupal\kit_catalog\CartManager
+    arguments: ['@database', '@datetime.time']

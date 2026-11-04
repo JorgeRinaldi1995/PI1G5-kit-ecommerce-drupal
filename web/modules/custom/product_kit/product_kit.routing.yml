@@ -1,0 +1,31 @@
+product_kit.admin_overview:
+  path: '/admin/product-kit'
+  defaults:
+    _controller: 'Drupal\product_kit\Controller\ProductKitOverviewController::overview'
+    _title: 'Product Kit'
+  requirements:
+    _permission: 'administer product kit'
+
+entity.product.settings:
+  path: '/admin/structure/product-kit/product'
+  defaults:
+    _form: 'Drupal\product_kit\Form\SettingsForm'
+    _title: 'Product settings'
+  requirements:
+    _permission: 'administer product kit'
+
+entity.kit.settings:
+  path: '/admin/structure/product-kit/kit'
+  defaults:
+    _form: 'Drupal\product_kit\Form\SettingsForm'
+    _title: 'Kit settings'
+  requirements:
+    _permission: 'administer product kit'
+
+entity.kit_product.settings:
+  path: '/admin/structure/product-kit/kit-line'
+  defaults:
+    _form: 'Drupal\product_kit\Form\SettingsForm'
+    _title: 'Kit line settings'
+  requirements:
+    _permission: 'administer product kit'

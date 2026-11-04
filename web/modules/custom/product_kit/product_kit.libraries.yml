@@ -1,0 +1,4 @@
+composition_form:
+  css:
+    theme:
+      css/composition-form.css: {}

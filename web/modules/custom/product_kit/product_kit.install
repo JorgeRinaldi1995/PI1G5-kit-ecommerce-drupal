@@ -1,0 +1,111 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Product Kit module.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Formerly installed the kit_stock cache; superseded by product_kit_update_10003().
+ *
+ * Kit stock is now derived, so there is nothing to install or backfill. The
+ * number stays so that environments that already ran it stay consistent.
+ */
+function product_kit_update_10001(): void {
+}
+
+/**
+ * Widens the product price column to a 64-bit integer.
+ *
+ * Prices are stored in minor units, and a kit price is a sum of
+ * (quantity * unit price): a 32-bit column caps out at about 21.4 million in
+ * major units, which a large kit can exceed. Drupal refuses to change the
+ * column of a field that already holds data, so the column is altered here and
+ * the storage definition is then updated with the core-sanctioned
+ * "column_changes_handled" flag. Existing values are preserved by the ALTER.
+ *
+ * (Kit prices used to be widened here too; kits no longer store one.)
+ *
+ * Idempotent: a price column that is already wide is skipped.
+ */
+function product_kit_update_10002(): string {
+  $stored = \Drupal::keyValue('entity.storage_schema.sql')->get('product.field_schema_data.price');
+  $column = $stored['product']['fields']['price'] ?? NULL;
+  if ($column === NULL || ($column['size'] ?? 'normal') === 'big') {
+    return (string) t('Price column widened to 64-bit for: nothing (already wide)');
+  }
+
+  $column['size'] = 'big';
+  \Drupal::database()->schema()->changeField('product', 'price', 'price', $column);
+
+  // Register the wide definition from code as the installed one.
+  $definition = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions('product')['price'];
+  $definition->setSetting('column_changes_handled', TRUE);
+  \Drupal::entityDefinitionUpdateManager()->updateFieldStorageDefinition($definition);
+
+  return (string) t('Price column widened to 64-bit for: product');
+}
+
+/**
+ * Stops storing kit price and kit stock.
+ *
+ * Both are derived from the kit's products on every read now, so the
+ * `kit_stock` entity type (a cache of the stock) and the stored `price` column
+ * of `kit` are removed. Nothing is lost: both values are recomputed from
+ * products and kit lines, which are untouched.
+ */
+function product_kit_update_10003(): string {
+  $update_manager = \Drupal::entityDefinitionUpdateManager();
+  $done = [];
+
+  if ($entity_type = $update_manager->getEntityType('kit_stock')) {
+    $update_manager->uninstallEntityType($entity_type);
+    $done[] = 'kit_stock entity type';
+  }
+
+  $price = $update_manager->getFieldStorageDefinition('price', 'kit');
+  if ($price && !$price->isComputed()) {
+    // Core will not drop a column that still holds values; this one is a cache.
+    \Drupal::database()->update('kit')->expression('price', 'NULL')->execute();
+    $update_manager->uninstallFieldStorageDefinition($price);
+    $done[] = 'kit.price column';
+  }
+
+  return (string) t('Removed: @done.', ['@done' => $done ? implode(', ', $done) : (string) t('nothing (already removed)')]);
+}
+
+/**
+ * Enforces one line per product per kit with a unique key.
+ *
+ * Adds UNIQUE(kit, product) to `kit_product`. Duplicate lines that predate the
+ * key (possible only through code that skipped validation) are merged first:
+ * their quantities are summed into the oldest line.
+ */
+function product_kit_update_10004(): string {
+  $database = \Drupal::database();
+
+  $merged = 0;
+  $duplicates = $database->query('SELECT kit, product FROM {kit_product} GROUP BY kit, product HAVING COUNT(*) > 1')->fetchAll();
+  foreach ($duplicates as $pair) {
+    $ids = $database->select('kit_product', 'kp')
+      ->fields('kp', ['id'])
+      ->condition('kit', $pair->kit)
+      ->condition('product', $pair->product)
+      ->orderBy('id')
+      ->execute()
+      ->fetchCol();
+    $keep = array_shift($ids);
+    $sum = (int) $database->query('SELECT SUM(quantity) FROM {kit_product} WHERE id = :keep OR id IN (:ids[])', [':keep' => $keep, ':ids[]' => $ids])->fetchField();
+    $database->update('kit_product')->fields(['quantity' => $sum])->condition('id', $keep)->execute();
+    $database->delete('kit_product')->condition('id', $ids, 'IN')->execute();
+    $merged += count($ids);
+  }
+
+  $update_manager = \Drupal::entityDefinitionUpdateManager();
+  $update_manager->updateEntityType(\Drupal::entityTypeManager()->getDefinition('kit_product'));
+  \Drupal::entityTypeManager()->clearCachedDefinitions();
+
+  return (string) t('Unique key on kit_product(kit, product) added; @count duplicate line(s) merged.', ['@count' => $merged]);
+}

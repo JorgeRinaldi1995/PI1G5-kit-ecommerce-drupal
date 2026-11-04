@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * @file
+ * Hook implementations for the Product Kit module.
+ *
+ * Kit price and stock are derived from the products on every read, so no hook
+ * has to keep anything in sync. A product does not need to be in any kit, but
+ * a kit always needs at least one product; the rest of this file, together
+ * with KitCompositionManager, keeps that one-way rule and cascades line
+ * deletion when a kit or a product is removed.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function product_kit_help($route_name, RouteMatchInterface $route_match): string {
+  if ($route_name === 'help.page.product_kit') {
+    return '<p>' . t('Defines Product, Kit and Kit line (kit_product) entities. A kit bundles products through kit_product lines, each with a quantity; a product can be in many kits, one kit, or none yet, but every kit needs at least one product. Kit price and kit stock are never stored: the price is the sum of (product price × line quantity) and the stock is how many complete kits the products in stock can make.') . '</p>';
+  }
+  return '';
+}
+
+/**
+ * Implements hook_entity_type_build().
+ *
+ * Attaches the kit line validation constraints.
+ */
+function product_kit_entity_type_build(array &$entity_types): void {
+  if (isset($entity_types['kit_product'])) {
+    $entity_types['kit_product']->addConstraint('UniqueKitProduct');
+    $entity_types['kit_product']->addConstraint('KitProductQuantityInStock');
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_predelete() for kit.
+ *
+ * Cascades to the kit's lines. The products that were only in this kit are
+ * simply left in one fewer kit (possibly none); a product does not need to be
+ * in any kit, so that is not guarded.
+ */
+function product_kit_kit_predelete(EntityInterface $entity): void {
+  \Drupal::service('product_kit.composition_manager')->preDeleteKit($entity);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_predelete() for product.
+ *
+ * Refuses a deletion that would leave a kit without a product, then cascades
+ * to the product's lines.
+ */
+function product_kit_product_predelete(EntityInterface $entity): void {
+  \Drupal::service('product_kit.composition_manager')->preDeleteProduct($entity);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_predelete() for kit_product.
+ *
+ * Refuses to remove the last product of a kit.
+ */
+function product_kit_kit_product_predelete(EntityInterface $entity): void {
+  \Drupal::service('product_kit.composition_manager')->preDeleteLine($entity);
+}

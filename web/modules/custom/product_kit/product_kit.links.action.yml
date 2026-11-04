@@ -1,0 +1,17 @@
+product_kit.product_add:
+  route_name: entity.product.add_form
+  title: 'Add product'
+  appears_on:
+    - entity.product.collection
+
+product_kit.kit_add:
+  route_name: entity.kit.add_form
+  title: 'Add kit'
+  appears_on:
+    - entity.kit.collection
+
+product_kit.kit_product_add:
+  route_name: entity.kit_product.add_form
+  title: 'Add kit line'
+  appears_on:
+    - entity.kit_product.collection

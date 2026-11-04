@@ -1,0 +1,47 @@
+kit_catalog.product_page:
+  path: '/product/{product}'
+  defaults:
+    _controller: 'Drupal\kit_catalog\Controller\ProductPageController::view'
+    _title_callback: 'Drupal\kit_catalog\Controller\ProductPageController::title'
+  requirements:
+    # Grants 'view' to anyone when the product is enabled; see
+    # \Drupal\product_kit\ProductKitAccessControlHandler.
+    _entity_access: 'product.view'
+  options:
+    parameters:
+      product:
+        type: entity:product
+
+kit_catalog.kit_page:
+  path: '/kit/{kit}'
+  defaults:
+    _controller: 'Drupal\kit_catalog\Controller\KitPageController::view'
+    _title_callback: 'Drupal\kit_catalog\Controller\KitPageController::title'
+  requirements:
+    # Grants 'view' to anyone when the kit is enabled; see
+    # \Drupal\product_kit\ProductKitAccessControlHandler.
+    _entity_access: 'kit.view'
+  options:
+    parameters:
+      kit:
+        type: entity:kit
+
+kit_catalog.storefront:
+  path: '/storefront'
+  defaults:
+    _controller: 'Drupal\kit_catalog\Controller\StorefrontController::build'
+    _title: 'Home'
+  requirements:
+    # Public home page -- same visibility as a published kit/product.
+    _access: 'TRUE'
+
+kit_catalog.cart_page:
+  path: '/cart'
+  defaults:
+    _controller: 'Drupal\kit_catalog\Controller\CartPageController::view'
+    _title: 'Your cart'
+  requirements:
+    # The cart itself has no meaning for a visitor who was never allowed to
+    # add anything to it in the first place -- same login requirement as
+    # every "Add to cart" button.
+    _user_is_logged_in: 'TRUE'

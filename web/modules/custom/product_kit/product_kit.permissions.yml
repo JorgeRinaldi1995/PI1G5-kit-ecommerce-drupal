@@ -1,0 +1,4 @@
+administer product kit:
+  title: 'Administer products and kits'
+  description: 'Create, edit and delete products, kits and kit lines, view computed kit stock levels, and manage their settings.'
+  restrict access: true

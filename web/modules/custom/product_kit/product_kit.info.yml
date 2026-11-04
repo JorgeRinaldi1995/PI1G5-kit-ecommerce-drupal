@@ -1,0 +1,11 @@
+name: 'Product Kit'
+type: module
+description: 'Custom Product, Kit and Kit line (kit_product) entities. A kit bundles products with quantities; its price and stock are derived from the products, never stored.'
+package: 'Commerce'
+core_version_requirement: ^11
+dependencies:
+  - drupal:file
+  - drupal:image
+  - drupal:text
+  - drupal:user
+  - drupal:views

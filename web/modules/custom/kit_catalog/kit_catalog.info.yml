@@ -1,0 +1,8 @@
+name: 'Kit Catalog'
+type: module
+description: 'Storefront block that lists enabled Product Kit kits in a grid with an "Add to cart" call to action. No checkout flow yet.'
+package: 'Commerce'
+core_version_requirement: ^11
+dependencies:
+  - drupal:block
+  - product_kit:product_kit

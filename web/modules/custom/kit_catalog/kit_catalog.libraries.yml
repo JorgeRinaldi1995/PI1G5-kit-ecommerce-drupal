@@ -1,0 +1,9 @@
+storefront:
+  css:
+    component:
+      css/kit-catalog-grid.css: {}
+  js:
+    js/kit-catalog-add-to-cart.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings

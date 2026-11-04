@@ -1,0 +1,12 @@
+services:
+  logger.channel.product_kit:
+    parent: logger.channel_base
+    arguments: ['product_kit']
+  product_kit.calculator:
+    class: Drupal\product_kit\KitCalculator
+    arguments: ['@entity_type.manager']
+  product_kit.composition_manager:
+    class: Drupal\product_kit\KitCompositionManager
+    arguments: ['@entity_type.manager', '@database', '@logger.channel.product_kit']
+  product_kit.price_formatter:
+    class: Drupal\product_kit\PriceFormatter

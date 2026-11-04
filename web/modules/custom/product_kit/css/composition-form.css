@@ -1,0 +1,25 @@
+/* One row per product (kit form) or per kit (product form). */
+.composition-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0 1rem;
+}
+
+.composition-row .form-item,
+.composition-row .form-actions {
+  margin-block: 0.5rem;
+}
+
+.composition-row__hint {
+  align-self: center;
+  margin-block: 0.5rem;
+  color: #55565b;
+  font-size: 0.875em;
+}
+
+.composition-summary {
+  margin-block-start: 1rem;
+  padding-block-start: 0.5rem;
+  border-block-start: 1px solid #dedfe4;
+}

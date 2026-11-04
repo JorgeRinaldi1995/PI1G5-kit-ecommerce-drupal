@@ -1,0 +1,146 @@
+.kit-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+}
+
+@media (min-width: 600px) {
+  .kit-catalog-grid--cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .kit-catalog-grid--cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .kit-catalog-grid--cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.kit-catalog-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.kit-catalog-card__name {
+  display: block;
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: inherit;
+  text-decoration: none;
+}
+
+.kit-catalog-card__name:hover,
+.kit-catalog-card__name:focus {
+  text-decoration: underline;
+}
+
+.kit-catalog-card__description {
+  flex-grow: 1;
+  margin-bottom: 0.75rem;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.kit-catalog-card__price {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.kit-catalog-card__stock {
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.kit-catalog-card__cta {
+  margin-top: auto;
+}
+
+.kit-catalog-card__cart-summary {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.kit-catalog-grid__empty {
+  grid-column: 1 / -1;
+  color: #777;
+}
+
+.kit-catalog-grid__cart-summary {
+  grid-column: 1 / -1;
+  justify-self: end;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+/* Kit/product detail pages (kit_catalog.kit_page, kit_catalog.product_page). */
+
+.kit-catalog-detail {
+  max-width: 40rem;
+}
+
+.kit-catalog-detail__description {
+  margin-bottom: 1rem;
+  color: #555;
+}
+
+.kit-catalog-detail img {
+  max-width: 100%;
+  margin-bottom: 1rem;
+}
+
+.kit-catalog-detail__price {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.kit-catalog-detail__stock {
+  margin-bottom: 1rem;
+  color: #777;
+}
+
+.kit-catalog-detail__products {
+  margin: 0 0 1.5rem 1.25rem;
+}
+
+/* The single-item "Add to cart" form (AddToCartFormBase) reuses the grid
+ * card's CTA styling but isn't laid out as a card itself on a detail page. */
+
+.kit-catalog-detail .kit-catalog-card {
+  display: block;
+  padding: 0;
+  border: 0;
+}
+
+/* Cart page (kit_catalog.cart_page). */
+
+.kit-catalog-cart__table {
+  width: 100%;
+  max-width: 40rem;
+  margin-bottom: 1rem;
+  border-collapse: collapse;
+}
+
+.kit-catalog-cart__table th,
+.kit-catalog-cart__table td {
+  padding: 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.kit-catalog-cart__total {
+  max-width: 40rem;
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-align: right;
+}

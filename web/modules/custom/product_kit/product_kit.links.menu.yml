@@ -1,0 +1,39 @@
+product_kit.admin_overview:
+  title: 'Product Kit'
+  description: 'Landing page with shortcuts to manage products, kits and kit lines.'
+  route_name: product_kit.admin_overview
+  parent: system.admin
+  weight: 10
+
+product_kit.products:
+  title: 'Products'
+  description: 'Manage products.'
+  route_name: entity.product.collection
+  parent: product_kit.admin_overview
+
+product_kit.kits:
+  title: 'Kits'
+  description: 'Manage kits.'
+  route_name: entity.kit.collection
+  parent: product_kit.admin_overview
+
+product_kit.kit_lines:
+  title: 'Kit lines'
+  description: 'Manage the product lines that make up kits.'
+  route_name: entity.kit_product.collection
+  parent: product_kit.admin_overview
+
+product_kit.content_products:
+  title: 'Products'
+  route_name: entity.product.collection
+  parent: system.admin_content
+
+product_kit.content_kits:
+  title: 'Kits'
+  route_name: entity.kit.collection
+  parent: system.admin_content
+
+product_kit.content_kit_lines:
+  title: 'Kit lines'
+  route_name: entity.kit_product.collection
+  parent: system.admin_content

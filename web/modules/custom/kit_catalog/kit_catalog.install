@@ -1,0 +1,165 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Kit Catalog module.
+ */
+
+/**
+ * Implements hook_schema().
+ *
+ * Plain tables, not content entities: CartManager runs these under a
+ * database lock held for the shortest possible time, and an entity save's
+ * hooks/cache invalidation overhead has no place inside that section.
+ *
+ * Two separate cart tables (kit lines, product lines) rather than one
+ * polymorphic table: both ultimately reserve against the same `product`
+ * rows (a kit's lines resolve to products through `kit_product`; a direct
+ * product line *is* a product), but keeping them apart keeps the query
+ * that aggregates demand per product -- the one piece of this that most
+ * needs to stay obviously correct -- a plain two-query sum instead of a
+ * conditional-by-type join. See CartManager::reservedUnitsByProduct().
+ */
+function kit_catalog_schema(): array {
+  $schema['kit_catalog_cart_item'] = [
+    'description' => "One kit line in one authenticated user's cart. The quantity reserved here counts against shared product stock (see product_kit's KitCalculator and CartManager::reservedUnitsByProduct()) until an item is removed or, eventually, ordered.",
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'uid' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'The owning user (users.uid). Anonymous carts are not supported.',
+      ],
+      'kit_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'References kit.id.',
+      ],
+      'quantity' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'changed' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Timestamp of the last change.',
+      ],
+    ],
+    'primary key' => ['id'],
+    'unique keys' => [
+      // One line per user per kit; CartManager::upsertCartLine() increments
+      // the quantity on this row rather than inserting a second one.
+      'cart_item__uid_kit' => ['uid', 'kit_id'],
+    ],
+    'indexes' => [
+      'cart_item__kit' => ['kit_id'],
+    ],
+  ];
+
+  $schema['kit_catalog_cart_product_item'] = [
+    'description' => "One product line in one authenticated user's cart -- a product added on its own, not through a kit. The quantity reserved here counts against the exact same `product.stock` a kit line sharing this product would draw from; see CartManager::reservedUnitsByProduct().",
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'uid' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'The owning user (users.uid). Anonymous carts are not supported.',
+      ],
+      'product_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'References product.id.',
+      ],
+      'quantity' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'changed' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Timestamp of the last change.',
+      ],
+    ],
+    'primary key' => ['id'],
+    'unique keys' => [
+      'cart_product_item__uid_product' => ['uid', 'product_id'],
+    ],
+    'indexes' => [
+      'cart_product_item__product' => ['product_id'],
+    ],
+  ];
+
+  $schema['kit_catalog_add_request'] = [
+    'description' => 'Idempotency ledger for "add to cart" submissions (kit or product). One row per distinct client request (keyed by a caller-supplied token): a retried or duplicated POST for the same token hits the unique key instead of reserving stock twice, and is answered with the same outcome (status/available) the original submission got, once that is known.',
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'idempotency_key' => [
+        'type' => 'varchar_ascii',
+        'length' => 64,
+        'not null' => TRUE,
+      ],
+      'uid' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'item_type' => [
+        'type' => 'varchar_ascii',
+        'length' => 16,
+        'not null' => TRUE,
+        'description' => '"kit" or "product" -- which cart table item_id refers to.',
+      ],
+      'item_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'A kit.id or product.id, per item_type.',
+      ],
+      'status' => [
+        'type' => 'varchar_ascii',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The CartManager outcome for this request once computed ("added", "insufficient_stock", "unavailable"); empty only for the instant between claiming the key and computing it.',
+      ],
+      'available' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+        'description' => 'Set only when status is "insufficient_stock".',
+      ],
+      'created' => [
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+    ],
+    'primary key' => ['id'],
+    'unique keys' => [
+      'add_request__key' => ['idempotency_key'],
+    ],
+  ];
+
+  return $schema;
+}
