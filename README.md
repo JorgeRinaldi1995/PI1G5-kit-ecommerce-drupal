@@ -1,8 +1,9 @@
 # drupal-ecommerce
 
 A Drupal 11 storefront for selling **products** and **kits** (bundles of
-products), built as three custom modules on top of a standard
-`drupal/recommended-project` install.
+products), built as three custom modules plus a custom storefront theme
+(`ecommerce_barrio`) on top of a standard `drupal/recommended-project`
+install.
 
 Kit price and stock are never stored — they are derived from the products in
 the kit on every read — and products are shared between kits, so the cart is
@@ -19,7 +20,7 @@ the cart is a read-only summary.
 | Web server | nginx-fpm |
 | Local env | [DDEV](https://ddev.com) (project name `drupal-ecommerce`) |
 | CLI | Drush 13 |
-| Themes | Olivero (front end), Claro (admin) |
+| Theme | `ecommerce_barrio` (custom, Bootstrap 5 subtheme of Barrio; default + front end), Claro (admin) |
 | Dev tooling | `drupal/core-dev` (PHPUnit, PHPCS / `drupal/coder`) |
 
 ## Getting started
@@ -37,7 +38,12 @@ it first and then enable the custom modules:
 ```bash
 ddev drush site:install standard -y
 ddev drush pm:enable product_kit kit_catalog -y
+ddev drush theme:enable ecommerce_barrio -y
+ddev drush config:set system.theme default ecommerce_barrio -y
 ```
+
+(`kit_assistant` is optional — only enable it once an `OPENAI_API_KEY` is
+set up, see that module's README.)
 
 `ddev describe` shows the URLs and database credentials.
 
@@ -63,6 +69,7 @@ PRODUCT ──< KIT_PRODUCT >── KIT
   persisted, so a kit can never disagree with its products.
 * A kit must contain at least one product; a product does not need to be in
   any kit.
+* Both products and kits have an optional managed `image` field.
 * `view` of an enabled kit or product is public; create/update/delete need
   the `administer product kit` permission.
 * `drush product-kit:audit` lists products with no kit (normal) and kits with
@@ -71,7 +78,8 @@ PRODUCT ──< KIT_PRODUCT >── KIT
 ### [kit_catalog](web/modules/custom/kit_catalog/README.md) — storefront and cart
 
 * **Kits grid** block (`kit_catalog_grid`), configurable count and columns.
-* Detail and purchase pages for kits and products, each with **Add to cart**.
+* Detail and purchase pages for kits and products (image, description,
+  price, stock), each with **Add to cart**.
 * A per-user cart summary, with a button to remove a line entirely.
 * Adding to cart **requires login**.
 * **Shared-stock safe**: a product used by several kits, or sold on its own,
@@ -92,6 +100,22 @@ PRODUCT ──< KIT_PRODUCT >── KIT
   on every turn.
 * Requires an `OPENAI_API_KEY` (environment variable, never committed —
   see that module's README, "Setting it up").
+
+## Custom theme
+
+### [ecommerce_barrio](web/themes/custom/ecommerce_barrio/README.md) — storefront theme
+
+* Bootstrap 5 subtheme of Barrio; default theme, front end. Claro stays
+  the admin theme.
+* The home page (hero, kits grid, newsletter, footer) is entirely **Block
+  Layout config**, not code — only the cart-count link is real markup.
+* The "Mais vendidos" kits grid is a **CSS-only horizontal slider**
+  (`scroll-snap-type`), active at every width to match the supplied
+  design, not just on mobile; position **dots** (computed at runtime from
+  how many cards actually fit in view) replace the native scrollbar as
+  the slider's position indicator.
+* No carousel library, no JS framework — a deliberate choice, considered
+  and set aside as overengineering for a CSS-native swipeable grid.
 
 ## Routes
 
@@ -138,8 +162,9 @@ ddev exec vendor/bin/phpcs --standard=Drupal,DrupalPractice web/modules/custom
   reserved for good.
 * `product_kit` has no automated tests of its own yet.
 * Prices are single-currency, shown as plain decimals.
-* Schema changes in development were applied by reinstalling the modules.
-  Any deployment past this point needs `hook_update_N` implementations.
+* Schema changes so far were applied by reinstalling the modules in dev; a
+  real deployment needs `hook_update_N` implementations
+  (`product_kit.install` already has four: `10002`–`10005`).
 
 ## License
 
