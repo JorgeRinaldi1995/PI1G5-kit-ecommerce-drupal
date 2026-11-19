@@ -1,0 +1,12 @@
+{#
+/**
+ * @file
+ * Site branding, overridden to render the "kit.ecommerce" wordmark with a
+ * styled dot (design asset) instead of Barrio's default logo+text markup --
+ * plain text can't have one character colored differently without its own
+ * markup. Still links to the real front page, same as the default.
+ */
+#}
+<a href="{{ path('<front>') }}" class="site-branding__link" rel="home">
+  <span class="site-branding__name">kit<span class="site-branding__dot">.</span>ecommerce</span>
+</a>

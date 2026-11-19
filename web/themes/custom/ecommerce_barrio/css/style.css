@@ -1,0 +1,1048 @@
+/**
+ * @file
+ * Storefront components matching the supplied design files
+ * (Home — desktop@1x.png / Home — mobile@1x.png): announcement bar, header
+ * (logo + search + account/wishlist/cart), always-visible category nav,
+ * two-panel hero, "Mais vendidos" slider/grid, newsletter band, footer.
+ * Mobile-first throughout: base rules target the phone-width layout from
+ * the mobile file, @media (min-width: ...) rules layer on the desktop
+ * file's wider layout on top.
+ */
+
+body {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/*
+ * Bootstrap's `.form-control` sets `display: block` (author origin), which
+ * overrides the browser's own `input[type="hidden"] { display: none }`
+ * default (user-agent origin always loses to author rules, regardless of
+ * selector specificity) -- so any Form API hidden input Barrio themes with
+ * `form-control` (form_build_id/form_id on every form, e.g. KitGridForm's)
+ * renders as a visible, empty, borderless-looking text box. Found by
+ * screenshotting the home page while verifying kit_assistant's chat
+ * widget -- pre-existing, unrelated to that widget, just never noticed
+ * before. Hidden inputs must never be visible regardless of what other
+ * classes land on them, hence the !important.
+ */
+input[type="hidden"] {
+  display: none !important;
+}
+
+.kit-catalog-cart-link__sr-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* ---------- Icons (CSS mask, single-color, no icon font/library) ---------- */
+
+.kit-catalog-icon,
+.kit-catalog-search__icon,
+.kit-catalog-icon-link__icon,
+.kit-catalog-cart-link__icon,
+.kit-catalog-hero-promo__icon {
+  display: inline-block;
+  background-color: currentColor;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  flex-shrink: 0;
+}
+
+.kit-catalog-search__icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='11' cy='11' r='7' fill='none' stroke='black' stroke-width='2'/><line x1='21' y1='21' x2='16.65' y2='16.65' stroke='black' stroke-width='2' stroke-linecap='round'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='11' cy='11' r='7' fill='none' stroke='black' stroke-width='2'/><line x1='21' y1='21' x2='16.65' y2='16.65' stroke='black' stroke-width='2' stroke-linecap='round'/></svg>");
+}
+
+.kit-catalog-icon-link__icon--account {
+  width: 1.3rem;
+  height: 1.3rem;
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='8' r='4' fill='none' stroke='black' stroke-width='2'/><path d='M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='8' r='4' fill='none' stroke='black' stroke-width='2'/><path d='M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/></svg>");
+}
+
+.kit-catalog-icon-link__icon--wishlist,
+.kit-catalog-card__wishlist {
+  width: 1.2rem;
+  height: 1.2rem;
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21s-7.5-4.6-10-9.3C.5 8.2 2.3 5 5.6 5c2 0 3.5 1.1 4.4 2.6C10.9 6.1 12.4 5 14.4 5c3.3 0 5.1 3.2 3.6 6.7C19.5 16.4 12 21 12 21z' fill='none' stroke='black' stroke-width='1.8'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21s-7.5-4.6-10-9.3C.5 8.2 2.3 5 5.6 5c2 0 3.5 1.1 4.4 2.6C10.9 6.1 12.4 5 14.4 5c3.3 0 5.1 3.2 3.6 6.7C19.5 16.4 12 21 12 21z' fill='none' stroke='black' stroke-width='1.8'/></svg>");
+}
+
+.kit-catalog-card__wishlist {
+  width: 1.1rem;
+  height: 1.1rem;
+  background: none;
+}
+
+.kit-catalog-hero-promo__icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='3' y='5' width='18' height='14' rx='2' fill='none' stroke='black' stroke-width='1.6'/><circle cx='9' cy='10' r='1.6' fill='black'/><path d='M3 16l5-5 4 4 3-3 6 6' fill='none' stroke='black' stroke-width='1.6'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='3' y='5' width='18' height='14' rx='2' fill='none' stroke='black' stroke-width='1.6'/><circle cx='9' cy='10' r='1.6' fill='black'/><path d='M3 16l5-5 4 4 3-3 6 6' fill='none' stroke='black' stroke-width='1.6'/></svg>");
+}
+
+.kit-catalog-cart-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  color: var(--ecb-text) !important;
+}
+
+.kit-catalog-cart-link--anonymous {
+  color: var(--ecb-primary) !important;
+}
+
+.kit-catalog-cart-link__badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--ecb-primary);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.kit-catalog-cart-link__icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6 8h12l-1 13H7z' fill='none' stroke='black' stroke-width='1.8' stroke-linejoin='round'/><path d='M9 8V6a3 3 0 0 1 6 0v2' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6 8h12l-1 13H7z' fill='none' stroke='black' stroke-width='1.8' stroke-linejoin='round'/><path d='M9 8V6a3 3 0 0 1 6 0v2' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'/></svg>");
+}
+
+.kit-catalog-social--instagram::before {
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='3' y='3' width='18' height='18' rx='5' fill='none' stroke='black' stroke-width='1.8'/><circle cx='12' cy='12' r='4' fill='none' stroke='black' stroke-width='1.8'/><circle cx='17.2' cy='6.8' r='1.1' fill='black'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='3' y='3' width='18' height='18' rx='5' fill='none' stroke='black' stroke-width='1.8'/><circle cx='12' cy='12' r='4' fill='none' stroke='black' stroke-width='1.8'/><circle cx='17.2' cy='6.8' r='1.1' fill='black'/></svg>");
+}
+
+.kit-catalog-social--facebook::before {
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='none' stroke='black' stroke-width='1.8'/><path d='M13.5 21v-7h2.2l.3-2.7h-2.5V9.6c0-.8.2-1.3 1.4-1.3h1.2V5.9c-.2 0-1-.1-1.9-.1-1.9 0-3.2 1.1-3.2 3.3v2.2H8.8v2.7H11v7z' fill='black'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='none' stroke='black' stroke-width='1.8'/><path d='M13.5 21v-7h2.2l.3-2.7h-2.5V9.6c0-.8.2-1.3 1.4-1.3h1.2V5.9c-.2 0-1-.1-1.9-.1-1.9 0-3.2 1.1-3.2 3.3v2.2H8.8v2.7H11v7z' fill='black'/></svg>");
+}
+
+.kit-catalog-social--youtube::before {
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='2' y='5' width='20' height='14' rx='4' fill='none' stroke='black' stroke-width='1.8'/><path d='M10 9l6 3-6 3z' fill='black'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='2' y='5' width='20' height='14' rx='4' fill='none' stroke='black' stroke-width='1.8'/><path d='M10 9l6 3-6 3z' fill='black'/></svg>");
+}
+
+/* ---------- Announcement bar ---------- */
+
+.announcement-bar {
+  background: var(--ecb-black);
+  color: #fff;
+}
+
+.announcement-bar p {
+  margin: 0;
+  padding: 0.55rem 0;
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+/* ---------- Header ---------- */
+
+#navbar-main .container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+/* `.region-header` matches nothing on purpose -- Barrio's own
+ * hook_preprocess_region() puts `header` (and `primary_menu`, `content`,
+ * breadcrumb, highlighted, both sidebars) on a "nowrap" list that swaps in
+ * region--nowrap.html.twig, which skips the usual `<section class="region
+ * region-X">` wrapper entirely and just prints the blocks' own markup.
+ * That already gives branding/header-actions/cart-link as plain flex-item
+ * siblings inside #navbar-main .container with no wrapper to flatten --
+ * confirmed by reading Barrio's BootstrapBarrioHooks::preprocessRegion(),
+ * not assumed. Kept as a comment, not deleted, so a later me doesn't
+ * reintroduce a `display: contents` "fix" for a wrapper that was never
+ * there. */
+
+.kit-catalog-hamburger {
+  order: 0;
+  border: 0;
+  background: none;
+  padding: 0.25rem;
+}
+
+.site-branding {
+  order: 1;
+}
+
+.site-branding__link {
+  text-decoration: none;
+}
+
+.site-branding__name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--ecb-text);
+  letter-spacing: -0.02em;
+}
+
+.site-branding__dot {
+  color: var(--ecb-primary);
+}
+
+.block-kit-catalog .kit-catalog-cart-link,
+#navbar-main .block-kit-catalog-cart-link {
+  order: 2;
+}
+
+#navbar-main .block-block-content96916ad2-5a14-47d8-a015-00769d6b7d0d,
+.kit-catalog-header-actions {
+  order: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1 1 100%;
+}
+
+@media (min-width: 992px) {
+  .kit-catalog-hamburger {
+    display: none !important;
+  }
+
+  #navbar-main .block-block-content96916ad2-5a14-47d8-a015-00769d6b7d0d,
+  .kit-catalog-header-actions {
+    order: 2;
+    flex: 1 1 auto;
+    justify-content: flex-end;
+  }
+
+  .block-kit-catalog .kit-catalog-cart-link,
+  #navbar-main .block-kit-catalog-cart-link {
+    order: 3;
+  }
+}
+
+.kit-catalog-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  background: var(--ecb-surface-alt);
+  color: var(--ecb-muted);
+}
+
+.kit-catalog-search input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+@media (min-width: 992px) {
+  .kit-catalog-search {
+    max-width: 28rem;
+  }
+}
+
+.kit-catalog-icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 0;
+  background: none;
+  color: var(--ecb-text);
+  flex-shrink: 0;
+}
+
+.kit-catalog-icon-link--button,
+.kit-catalog-icon-link__icon--account,
+.kit-catalog-icon-link__icon--wishlist {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .kit-catalog-icon-link,
+  .kit-catalog-icon-link--button {
+    display: inline-flex;
+  }
+}
+
+/* ---------- Category nav ---------- */
+
+.categories-nav {
+  border-bottom: 1px solid var(--ecb-border);
+}
+
+/* Barrio's menu block template (not core's generic menu.html.twig) renders
+ * <ul class="clearfix nav"><li class="nav-item"><a|span class="nav-link">,
+ * not the `.menu`/`.menu-item` classes a plain Drupal menu normally gets --
+ * confirmed by reading the actual markup, not assumed from the generic
+ * case. A `route:<nolink>` link (every item here -- see
+ * [[kit-catalog-module]]'s memory note on the placeholder category menu)
+ * renders as a <span>, not an <a>, hence targeting both. */
+
+.categories-nav .nav {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0.6rem 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.categories-nav .nav::-webkit-scrollbar {
+  display: none;
+}
+
+.categories-nav .nav-item {
+  flex: 0 0 auto;
+}
+
+.categories-nav .nav-link {
+  display: block;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ecb-text);
+  white-space: nowrap;
+  border: 1px solid var(--ecb-border);
+}
+
+.categories-nav .nav-item:first-child .nav-link {
+  background: var(--ecb-black);
+  color: #fff;
+  border-color: var(--ecb-black);
+}
+
+.categories-nav .nav-item:last-child .nav-link {
+  color: var(--ecb-primary);
+  border-color: transparent;
+}
+
+@media (min-width: 992px) {
+  .categories-nav .nav {
+    overflow-x: visible;
+    padding: 0.85rem 0;
+    gap: 1.75rem;
+  }
+
+  .categories-nav .nav-link {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .categories-nav .nav-item:first-child .nav-link {
+    background: none;
+    color: var(--ecb-text);
+  }
+}
+
+/* ---------- Hero (region-featured-top: text panel + promo panel) ---------- */
+
+.featured-top {
+  padding: 1.25rem 0;
+}
+
+/* The actual flex parent of the hero's two blocks is `.region-featured-top`
+ * itself (page.html.twig nests it: .featured-top > .featured-top__inner >
+ * .region.region-featured-top > [hero block][promo block]) -- not
+ * `.featured-top__inner` as a descendant of it, which is backwards and
+ * silently matched nothing. Drupal also renders this region with
+ * Bootstrap's own `.row` class alongside it (<section class="row region
+ * region-featured-top">), a same-specificity single-class selector that
+ * can otherwise win on load order alone -- `.featured-top .region-
+ * featured-top` (two classes) sidesteps that instead of depending on
+ * which stylesheet happens to be aggregated last. */
+.featured-top .region-featured-top {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 1.25rem;
+}
+
+@media (min-width: 992px) {
+  .featured-top .region-featured-top {
+    flex-direction: row;
+    align-items: stretch;
+  }
+}
+
+.region-featured-top .block-content-basic {
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+/* Hero text panel (Storefront hero). */
+
+.block-block-content422211cc-72e5-478c-a3da-6e941a8f05bc {
+  flex: 1 1 50%;
+  /* Mobile mockup shows the promo image first, text card second; desktop
+   * shows text on the left, promo on the right -- order flips per
+   * breakpoint rather than DOM order (block weights keep text first in
+   * markup, which is also the more meaningful reading order for a
+   * screen reader / no-CSS fallback). */
+  order: 2;
+  background: var(--ecb-surface-alt);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (min-width: 992px) {
+  .block-block-content422211cc-72e5-478c-a3da-6e941a8f05bc {
+    order: 1;
+  }
+}
+
+.kit-catalog-hero__eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--ecb-primary);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.region-featured-top h1 {
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--ecb-text);
+  margin-bottom: 0.75rem;
+}
+
+.block-block-content422211cc-72e5-478c-a3da-6e941a8f05bc p:not(.kit-catalog-hero__eyebrow) {
+  color: var(--ecb-muted);
+  max-width: 28rem;
+  margin-bottom: 1.5rem;
+}
+
+.kit-catalog-hero__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (min-width: 576px) {
+  .kit-catalog-hero__actions {
+    flex-direction: row;
+  }
+}
+
+.kit-catalog-hero__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.kit-catalog-hero__cta--primary {
+  background: var(--ecb-primary);
+  color: #fff !important;
+}
+
+.kit-catalog-hero__cta--primary::after {
+  content: "\2192";
+}
+
+.kit-catalog-hero__cta--primary:hover,
+.kit-catalog-hero__cta--primary:focus {
+  background: var(--ecb-primary-dark);
+}
+
+.kit-catalog-hero__cta--outline {
+  background: transparent;
+  color: var(--ecb-text) !important;
+  border: 1px solid var(--ecb-text);
+}
+
+/* Hero promo panel (Storefront hero promo). */
+
+.block-block-content78a94950-683d-4144-8c3b-aedec5d9d0c5 {
+  flex: 1 1 50%;
+  order: 1;
+  position: relative;
+  min-height: 16rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, var(--ecb-promo-from) 0%, var(--ecb-promo-to) 100%);
+  display: flex;
+  align-items: flex-start;
+}
+
+@media (min-width: 992px) {
+  .block-block-content78a94950-683d-4144-8c3b-aedec5d9d0c5 {
+    order: 2;
+  }
+}
+
+.kit-catalog-hero-promo__badge {
+  /* Above the photo (below), not above the placeholder (also below) --
+   * position: relative is what makes z-index apply at all; without it
+   * this static-flow badge would paint under any absolutely positioned
+   * element regardless of DOM order. */
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  padding: 0.6rem 1rem;
+  border-radius: 14px;
+  background: #fff;
+  color: var(--ecb-text);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.3;
+  box-shadow: 0 4px 14px rgba(13, 13, 16, 0.08);
+}
+
+.kit-catalog-hero-promo__placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--ecb-text);
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+/* A real photo (added via the block's body field -- see its README) sits
+ * as a plain <img>, a sibling of the badge, not nested inside the dimmed
+ * placeholder above (which stays only for when no photo has been added
+ * yet). Fills the whole gradient box, same object-fit: cover treatment
+ * kit cards already use for their own real-vs-placeholder photo. */
+.block-block-content78a94950-683d-4144-8c3b-aedec5d9d0c5 img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+/* ---------- "Mais vendidos" header + nav arrows ---------- */
+
+.kit-catalog-grid__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.kit-catalog-grid__header-text h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+}
+
+.kit-catalog-grid__header-text p {
+  margin: 0;
+  color: var(--ecb-muted);
+  font-size: 0.9rem;
+}
+
+.kit-catalog-grid__nav {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.kit-catalog-grid__nav-btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  border: 1px solid var(--ecb-border);
+  background: #fff;
+  position: relative;
+}
+
+.kit-catalog-grid__nav-btn--active {
+  background: var(--ecb-black);
+  border-color: var(--ecb-black);
+}
+
+.kit-catalog-grid__nav-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid var(--ecb-text);
+  border-top: 2px solid var(--ecb-text);
+}
+
+.kit-catalog-grid__nav-btn--active::before {
+  border-color: #fff;
+}
+
+.kit-catalog-grid__nav-btn--prev::before {
+  transform: translate(-30%, -50%) rotate(-135deg);
+}
+
+.kit-catalog-grid__nav-btn--next::before {
+  transform: translate(-70%, -50%) rotate(45deg);
+}
+
+/* ---------- Slider position dots (replaces the native scrollbar) ---------- */
+
+/* Hidden by default: meaningful only on the front page, where
+ * body.path-frontpage turns the grid into a slider (above). Placed
+ * elsewhere, KitGridBlock renders a plain multi-column grid with nothing
+ * to paginate, so the dots (still rendered server-side, see
+ * KitGridForm::buildDots()'s docblock) stay invisible there. */
+.kit-catalog-grid__dots {
+  display: none;
+}
+
+body.path-frontpage .kit-catalog-grid__dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: -0.25rem;
+}
+
+.kit-catalog-grid__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--ecb-border);
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.kit-catalog-grid__dot:hover,
+.kit-catalog-grid__dot:focus-visible {
+  background: var(--ecb-muted);
+}
+
+.kit-catalog-grid__dot--active {
+  background: var(--ecb-black);
+  transform: scale(1.3);
+}
+
+/* ---------- Product cards ---------- */
+
+.kit-catalog-card {
+  position: relative;
+}
+
+.kit-catalog-card__badges {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 1;
+}
+
+.kit-catalog-card__badge {
+  display: inline-block;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(13, 13, 16, 0.1);
+}
+
+.kit-catalog-card__wishlist {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 1;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 0;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(13, 13, 16, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kit-catalog-card__wishlist::before {
+  content: "";
+  width: 1.1rem;
+  height: 1.1rem;
+  background-color: var(--ecb-text);
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21s-7.5-4.6-10-9.3C.5 8.2 2.3 5 5.6 5c2 0 3.5 1.1 4.4 2.6C10.9 6.1 12.4 5 14.4 5c3.3 0 5.1 3.2 3.6 6.7C19.5 16.4 12 21 12 21z' fill='none' stroke='black' stroke-width='1.8'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21s-7.5-4.6-10-9.3C.5 8.2 2.3 5 5.6 5c2 0 3.5 1.1 4.4 2.6C10.9 6.1 12.4 5 14.4 5c3.3 0 5.1 3.2 3.6 6.7C19.5 16.4 12 21 12 21z' fill='none' stroke='black' stroke-width='1.8'/></svg>");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.kit-catalog-card__name {
+  margin-top: 0.5rem;
+}
+
+.kit-catalog-card__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  border: 1px solid var(--ecb-text);
+  background: #fff;
+  color: var(--ecb-text);
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+}
+
+.kit-catalog-card__cta::before {
+  content: "+";
+  font-weight: 700;
+}
+
+.kit-catalog-card__cta:hover,
+.kit-catalog-card__cta:focus {
+  background: var(--ecb-text);
+  color: #fff;
+}
+
+/* ---------- Product slider (all widths) ---------- */
+
+/*
+ * The supplied design (Home — desktop@1x.png) keeps "Mais vendidos" a
+ * horizontal slider at desktop widths too -- four full cards plus a fifth
+ * clipped at the edge, signalling there's more to scroll -- not a static
+ * wrapped grid. An earlier version of this file switched to
+ * `display: grid` at 900px+, which left the Anterior/Próximo buttons
+ * (KitGridForm's `#kit_id`-less nav, wired by global.js) with nothing to
+ * scroll: not a JS bug, just CSS no longer matching the design. Fixed by
+ * only adjusting card width at wider breakpoints, below, and never
+ * overriding `display`/`overflow-x`/`scroll-snap-type` after this block.
+ */
+
+body.path-frontpage .kit-catalog-grid {
+  display: flex;
+  grid-template-columns: none;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 0.25rem 0.25rem 1rem;
+  margin: 0 -0.25rem;
+  -webkit-overflow-scrolling: touch;
+  /* The dots below (KitGridForm::buildDots()) are the position indicator
+   * now, not the browser's own scrollbar -- still scrollable by every
+   * other means (arrows, swipe, trackpad, keyboard), just not painted. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+body.path-frontpage .kit-catalog-grid::-webkit-scrollbar {
+  display: none;
+}
+
+body.path-frontpage .kit-catalog-card {
+  flex: 0 0 auto;
+  width: 72%;
+  max-width: 17rem;
+  scroll-snap-align: start;
+  border: none;
+  border-radius: 14px;
+  background: var(--ecb-surface);
+  padding: 0;
+  overflow: hidden;
+}
+
+body.path-frontpage .kit-catalog-card > *:not(.kit-catalog-card__badges):not(.kit-catalog-card__wishlist):not(.kit-catalog-card__photo) {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+body.path-frontpage .kit-catalog-card__name {
+  margin-top: 0.75rem;
+}
+
+body.path-frontpage .kit-catalog-card__cta,
+body.path-frontpage .kit-catalog-card__description {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+
+body.path-frontpage .kit-catalog-card .kit-catalog-card__cta {
+  margin-bottom: 1rem;
+}
+
+body.path-frontpage .kit-catalog-grid__empty,
+body.path-frontpage .kit-catalog-grid__cart-summary {
+  flex: 1 0 100%;
+}
+
+@media (min-width: 900px) {
+  body.path-frontpage .kit-catalog-grid {
+    margin: 0;
+    padding: 0.25rem 0 1rem;
+  }
+
+  /* ~4.3 cards visible at a time, same "one card peeking at the edge"
+   * affordance the mobile layout already has at 72%/17rem -- just sized
+   * for the wider row instead of a fixed percentage of a narrow screen. */
+  body.path-frontpage .kit-catalog-card {
+    width: calc((100% - 3 * 1rem) / 4.3);
+    max-width: 19rem;
+  }
+}
+
+/* Photo area -- a real <img> when the kit has one (KitGridForm::buildCard()),
+ * cropped to fill the box; otherwise a labelled placeholder color block,
+ * same honest-placeholder spirit as the hero promo panel's "[Imagem da
+ * campanha]". The pastel cycle below applies to the placeholder's
+ * background only -- an actual photo covers it entirely. */
+
+.kit-catalog-card__photo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 11rem;
+  overflow: hidden;
+  color: var(--ecb-muted);
+  font-size: 0.8rem;
+  background: var(--ecb-surface-alt);
+}
+
+.kit-catalog-card__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kit-catalog-grid > .kit-catalog-card:nth-of-type(5n + 1) .kit-catalog-card__photo {
+  background: #dce3fb;
+}
+
+.kit-catalog-grid > .kit-catalog-card:nth-of-type(5n + 2) .kit-catalog-card__photo {
+  background: #f3e6d2;
+}
+
+.kit-catalog-grid > .kit-catalog-card:nth-of-type(5n + 3) .kit-catalog-card__photo {
+  background: #dcebe0;
+}
+
+.kit-catalog-grid > .kit-catalog-card:nth-of-type(5n + 4) .kit-catalog-card__photo {
+  background: #f3dfe6;
+}
+
+.kit-catalog-grid > .kit-catalog-card:nth-of-type(5n + 5) .kit-catalog-card__photo {
+  background: #eaf0d2;
+}
+
+/* ---------- Newsletter band (region-featured-bottom-first) ---------- */
+
+.region-featured-bottom-first .block-content-basic {
+  padding: 2rem 1.5rem;
+  background: var(--ecb-black);
+  color: #fff;
+  border-radius: 20px;
+}
+
+@media (min-width: 768px) {
+  .region-featured-bottom-first .block-content-basic {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 2.5rem 3rem;
+  }
+}
+
+.region-featured-bottom-first h2 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 0.4rem;
+}
+
+.region-featured-bottom-first p {
+  color: rgba(255, 255, 255, 0.72);
+  margin-bottom: 1rem;
+  max-width: 26rem;
+}
+
+.kit-catalog-newsletter__label {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 0.4rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.kit-catalog-newsletter__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+@media (min-width: 992px) {
+  .kit-catalog-newsletter__form {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.kit-catalog-newsletter__form input[type="email"] {
+  padding: 0.65rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  min-width: 16rem;
+}
+
+.kit-catalog-newsletter__form input[type="email"]::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.kit-catalog-newsletter__form button {
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* ---------- Footer ---------- */
+
+.site-footer {
+  border-top: 1px solid var(--ecb-border);
+}
+
+.site-footer a {
+  color: var(--ecb-text);
+}
+
+.site-footer h5 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+.site-footer ul {
+  margin: 0;
+  padding: 0;
+}
+
+.site-footer li {
+  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.site-footer__top {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .site-footer__top {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+.kit-catalog-footer__logo {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-bottom: 0.4rem;
+}
+
+.kit-catalog-footer__dot {
+  color: var(--ecb-primary);
+}
+
+.kit-catalog-footer__social {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.kit-catalog-social {
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ecb-border);
+  border-radius: 999px;
+  background-color: transparent !important;
+  color: var(--ecb-text);
+  position: relative;
+}
+
+.kit-catalog-social::before {
+  content: "";
+  position: absolute;
+  inset: 0.45rem;
+  background-color: currentColor;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.site-footer__bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--ecb-border);
+  font-size: 0.8rem;
+  color: var(--ecb-muted);
+}
+
+@media (min-width: 768px) {
+  .site-footer__bottom {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+.kit-catalog-footer__bottom-text {
+  margin: 0;
+}

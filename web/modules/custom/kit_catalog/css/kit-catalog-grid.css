@@ -144,3 +144,29 @@
   font-weight: bold;
   text-align: right;
 }
+
+/*
+ * Barrio's input preprocessing adds `.btn.btn-primary` to every submit
+ * button (confirmed in the rendered markup, not assumed) -- two classes,
+ * same specificity as a two-class override here would have, so a plain
+ * `.kit-catalog-cart__remove { background: ... }` loses the fight on
+ * source order alone. Same shape of collision as the `input[type="hidden"]`
+ * one in ecommerce_barrio's style.css; same fix, `!important`, for the
+ * same reason: there's no Bootstrap class to chain onto that wouldn't be
+ * fragile to its own internals changing.
+ */
+.kit-catalog-cart__remove {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  color: #a4262c !important;
+  background: #fff !important;
+  border: 1px solid #a4262c !important;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.kit-catalog-cart__remove:hover,
+.kit-catalog-cart__remove:focus {
+  color: #fff !important;
+  background: #a4262c !important;
+}

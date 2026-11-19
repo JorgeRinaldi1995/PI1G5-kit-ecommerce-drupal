@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * @file
+ * Functions to support theming in the SASS Starterkit subtheme.
+ */
+use Drupal\Core\Hook\Attribute\LegacyHook;
+use Drupal\ecommerce_barrio\Hook\EcommerceBarrioHooks;
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_system_theme_settings_alter() for settings form.
+ *
+ * Replace Barrio setting options with subtheme ones.
+ *
+ * Example on how to alter theme settings form
+ */
+#[LegacyHook]
+function ecommerce_barrio_form_system_theme_settings_alter(&$form, FormStateInterface $form_state)
+{
+    \Drupal::service(EcommerceBarrioHooks::class)->formSystemThemeSettingsAlter($form, $form_state);
+}

@@ -3,18 +3,24 @@
 Storefront pages built on top of `product_kit`: a block that lists enabled
 kits in a grid, a detail page for each kit, a purchase page for each
 product — kit or bare product, both with an **Add to cart** button — and a
-read-only cart summary page. There is still no checkout flow — see "Scope"
-below.
+cart summary page where each line can be removed. There is still no
+checkout flow — see "Scope" below.
 
 ## What it provides
 
 * A block, **Kits grid (Product Kit)** (plugin ID `kit_catalog_grid`),
-  placeable in any region. Configurable: number of kits to show (0 = all
+  placeable in any region. Configurable: an optional heading/subheading
+  shown above the grid (with prev/next scroll buttons next to them — pure
+  CSS/JS affordance for whatever slider layout the active theme gives the
+  grid, see `ecommerce_barrio`'s README), number of kits to show (0 = all
   enabled kits) and number of grid columns (2–4). Browsing the grid itself
-  needs no account. Each card shows the kit's name (linked to its detail
-  page, below), description, derived price (`product_kit.price_formatter`)
-  and derived stock (`Kit::getStock()`); the card reads "Out of stock" when
-  `Kit::canBeSold()` is false.
+  needs no account. Each card shows the kit's image if one was uploaded, or
+  a labelled photo placeholder otherwise, a "Novo" badge when genuinely recently created
+  (`KitGridForm::buildBadges()` — nothing else is shown without real data
+  behind it), a decorative wishlist icon, the kit's name (linked to its
+  detail page, below), description, derived price
+  (`product_kit.price_formatter`) and derived stock (`Kit::getStock()`);
+  the card reads "Fora de estoque" when `Kit::canBeSold()` is false.
 * A detail page per kit, `/kit/{kit}` (`kit_catalog.kit_page`,
   `KitPageController`): the same facts as the grid card, plus the kit's
   full "what's in this kit" breakdown — each line linking to that product's
@@ -27,16 +33,19 @@ below.
   price, derived stock (`Product::canBeSold()`/`getStock()`), and its own
   "Add to cart" button — a product bought this way is not part of any kit
   purchase; see the next section for why that's still safe.
-* A read-only cart summary, `/cart` (`kit_catalog.cart_page`,
-  `CartPageController`, login required —
-  `requirements: { _user_is_logged_in: 'TRUE' }`): every kit and product
-  line the user has added, each linked back to its own page, with unit
-  price, quantity, subtotal and a grand total — `CartManager::getKitItems()`
-  and `getProductItems()` combined in one table, so a kit bought as a kit
-  and a product bought on its own show up side by side, consistently. Every
-  "Add to cart" form (`AddToCartFormBase`) and the grid
-  (`KitGridForm::buildForm()`) also show a small, live "Cart: N item(s)"
-  link to this page, recomputed on every add.
+* A cart summary, `/cart` (`kit_catalog.cart_page`, `CartForm`, login
+  required — `requirements: { _user_is_logged_in: 'TRUE' }`): every kit and
+  product line the user has added, each linked back to its own page, with
+  unit price, quantity, subtotal, a grand total, and a **Remover** button
+  that deletes that line entirely —
+  `CartManager::removeKitLine()`/`removeProductLine()`, a plain uid-scoped
+  delete, AJAX-refreshed in place, same as every other button in this
+  module. `CartManager::getKitItems()` and `getProductItems()` are combined
+  in one table, so a kit bought as a kit and a product bought on its own
+  show up side by side, consistently. Every "Add to cart" form
+  (`AddToCartFormBase`) and the grid (`KitGridForm::buildForm()`) also show
+  a small, live "Cart: N item(s)" link to this page, recomputed on every
+  add.
 * **Adding to cart requires being logged in**, everywhere. An anonymous
   visitor gets a "Log in to add to cart" link (back to the same page
   afterwards) instead of a working button. Every form re-checks
@@ -56,19 +65,19 @@ below.
 
 `/storefront` (`kit_catalog.storefront`, `StorefrontController::build()`) is
 set as `system.site:page.front`. The controller itself returns nothing — on
-purpose. Everything a visitor sees there is placed the ordinary Drupal way,
-as Block Layout config, visibility-restricted to `<front>` (the "pages:"
-condition tracks whatever `page.front` is, not a hardcoded path):
-
-* **Storefront hero** — a `block_content` (Custom Block Library, bundle
-  `basic`) in Olivero's `hero` region. Editable from
-  `/block/{id}` with no code change and no deploy, which is the actual
-  point of using a reusable custom block instead of hardcoding the markup
-  in the controller or the theme.
-* **Kits grid (Product Kit)** (`kit_catalog_grid`, the same block plugin
-  described above) in the `content` region — placed, not special-cased;
-  it's the same configurable block an admin could also drop into a sidebar
-  elsewhere.
+purpose. Everything a visitor sees there — hero, kit grid, newsletter,
+footer, the whole "casa.moderna" design — is placed the ordinary Drupal
+way, as Block Layout config in the active theme
+(`web/themes/custom/ecommerce_barrio`), visibility-restricted to `<front>`
+where that's specific to the home page (the "pages:" condition tracks
+whatever `page.front` is, not a hardcoded path). **Kits grid (Product
+Kit)** (`kit_catalog_grid`, described above) is placed, not special-cased
+— it's the same configurable block an admin could also drop into a
+sidebar elsewhere; **Cart link** (`kit_catalog_cart_link`, `CartLinkBlock`)
+lives in the theme's always-visible header row, not restricted to the
+front page. See `ecommerce_barrio`'s own README for the full region-by-
+region layout, the CSS-only product "slider," and what's decorative vs.
+real on that page.
 
 This route exists only because `page.front` needs *something* to point at;
 the standard core front page (`/node`, the "frontpage" View over promoted
@@ -150,31 +159,34 @@ rejected click is told it was rejected, never flipped into a false "added".
 
 ## A cart page's whole content is one user's data -- cache it accordingly
 
-`CartPageController::view()` sets `'#cache' => ['contexts' => ['user']]` on
-every render array it returns, including the "cart is empty" one. This is
-not a precaution; it fixes a real bug caught in development, not a
-hypothetical: without it, Dynamic Page Cache keys its cached response on
-the URL (`/cart`) without knowing the content is per-user, and will happily
-serve the first authenticated visitor's cart (and total!) to the next one
-who loads the page. Verified both ways: a second test user initially saw
-the first test user's two cart lines and their 950.00 total; adding the cache
-context made both the "has items" and "empty" responses come back
-`x-drupal-dynamic-cache: UNCACHEABLE` instead, and each user has seen only
-their own cart since. `KitPageController`/`ProductPageController` were
-never at risk of this specific bug -- embedding a `FormBase`
-(`AddToCartFormBase`) already makes a page's cacheability "poor" on its
-own, for unrelated reasons (a form's build ID/CSRF token has to be fresh
-per request) -- but a plain, form-free controller returning per-user data,
-like this one, has no such accidental protection and has to declare it.
+`CartForm::buildForm()` sets `$form['#cache']['contexts'] = ['user']`,
+including on the "cart is empty" branch. This is not a precaution; it fixes
+a real bug caught in development, not a hypothetical: without it, Dynamic
+Page Cache keys its cached response on the URL (`/cart`) without knowing
+the content is per-user, and will happily serve the first authenticated
+visitor's cart (and total!) to the next one who loads the page. Verified
+both ways: a second test user initially saw the first test user's two cart
+lines and their 950.00 total; adding the cache context made both the "has
+items" and "empty" responses come back `x-drupal-dynamic-cache:
+UNCACHEABLE` instead, and each user has seen only their own cart since.
+This page started as a plain, form-free controller
+(`CartPageController`) that had to declare the context explicitly for this
+exact reason; it's now a `FormBase` like every other page in this module
+(see "Scope" below for why), which has its own, unrelated reason to never
+be page-cached (a form's build ID/CSRF token has to be fresh per request)
+— the explicit `'user'` context stays regardless, since Dynamic Page Cache
+and the form's own uncacheability are two different layers.
 
 ## Scope: what this is not
 
 Per the request this was built for, **the checkout flow is out of scope**:
 
-* `/cart` is read-only: no "remove", no "edit quantity", no "place order".
-  No order entity exists, and nothing decrements `product.stock` —
-  `CartManager` only *reserves* against shared stock, it doesn't sell
-  anything.
+* `/cart` lets a line be removed entirely (`CartForm`, "Remover"), but
+  nothing else: no "edit quantity", no "place order". No order entity
+  exists, and nothing decrements `product.stock` — `CartManager` only
+  *reserves* against shared stock, it doesn't sell anything, and removing a
+  line just gives that reservation back (no partial-quantity removal,
+  either — see the Routes/README's known limitations).
 * **Known limitation**: nothing expires an abandoned cart line. Since a
   reservation counts against every other claim on that stock (that's the
   whole point — see above), a kit or product added to a cart that's never

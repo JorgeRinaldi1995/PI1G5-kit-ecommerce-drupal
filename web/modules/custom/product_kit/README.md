@@ -93,6 +93,7 @@ is under `src/` in `Drupal\product_kit`.
 | `name` | string(255) | Label, required. |
 | `status` | boolean | "Enabled". |
 | `description` | text_long | |
+| `image` | image | Managed image field. Added by `product_kit_update_10005`. |
 | `price` | **computed** integer | Derived, read-only. Not a column. |
 | `stock` | **computed** integer | Derived, read-only. Not a column. |
 | `items` | computed entity_reference | The kit's `kit_product` lines. |

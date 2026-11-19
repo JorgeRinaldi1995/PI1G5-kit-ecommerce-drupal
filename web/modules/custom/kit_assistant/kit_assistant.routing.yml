@@ -1,0 +1,37 @@
+kit_assistant.token:
+  path: '/kit-assistant/token'
+  defaults:
+    _controller: '\Drupal\kit_assistant\Controller\ChatController::token'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE
+
+kit_assistant.message:
+  path: '/kit-assistant/message'
+  defaults:
+    _controller: '\Drupal\kit_assistant\Controller\ChatController::message'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE
+
+kit_assistant.reset:
+  path: '/kit-assistant/reset'
+  defaults:
+    _controller: '\Drupal\kit_assistant\Controller\ChatController::reset'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE
+
+kit_assistant.settings_form:
+  path: '/admin/config/content/kit-assistant'
+  defaults:
+    _form: '\Drupal\kit_assistant\Form\SettingsForm'
+    _title: 'Kit Assistant'
+  requirements:
+    _permission: 'administer site configuration'

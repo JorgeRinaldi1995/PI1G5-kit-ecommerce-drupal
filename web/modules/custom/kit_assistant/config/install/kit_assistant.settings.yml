@@ -1,0 +1,5 @@
+enabled: true
+model: 'gpt-4o-mini'
+moderation_model: 'omni-moderation-latest'
+max_tool_rounds: 4
+history_turns: 20

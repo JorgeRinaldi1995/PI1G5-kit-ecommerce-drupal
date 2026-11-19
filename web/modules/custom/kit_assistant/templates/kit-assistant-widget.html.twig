@@ -1,0 +1,35 @@
+{#
+/**
+ * @file
+ * The floating chat bubble + panel shell. js/chat.js fills in messages at
+ * runtime; this template only provides the static structure/labels so it
+ * still degrades to "a closed bubble" if JS fails to load.
+ */
+#}
+<div class="kit-assistant" data-kit-assistant>
+  <button type="button" class="kit-assistant__bubble" data-kit-assistant-toggle aria-expanded="false" aria-controls="kit-assistant-panel">
+    <span class="kit-assistant__bubble-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">{{ 'Falar com Cleiton, assistente de kits profissionalizantes'|t }}</span>
+  </button>
+
+  <div id="kit-assistant-panel" class="kit-assistant__panel" data-kit-assistant-panel hidden>
+    <div class="kit-assistant__header">
+      <div class="kit-assistant__header-text">
+        <strong class="kit-assistant__name">{{ 'Cleiton'|t }}</strong>
+        <span class="kit-assistant__tagline">{{ 'Kits profissionalizantes'|t }}</span>
+      </div>
+      <div class="kit-assistant__header-actions">
+        <button type="button" class="kit-assistant__reset" data-kit-assistant-reset>{{ 'Limpar'|t }}</button>
+        <button type="button" class="kit-assistant__close" data-kit-assistant-close aria-label="{{ 'Fechar'|t }}">&times;</button>
+      </div>
+    </div>
+
+    <div class="kit-assistant__messages" role="log" aria-live="polite" data-kit-assistant-messages></div>
+
+    <form class="kit-assistant__composer" data-kit-assistant-form>
+      <label class="visually-hidden" for="kit-assistant-input">{{ 'Escreva sua mensagem'|t }}</label>
+      <input type="text" id="kit-assistant-input" class="kit-assistant__input" data-kit-assistant-input autocomplete="off" maxlength="1000" placeholder="{{ 'Pergunte sobre os kits...'|t }}">
+      <button type="submit" class="kit-assistant__send" data-kit-assistant-send>{{ 'Enviar'|t }}</button>
+    </form>
+  </div>
+</div>

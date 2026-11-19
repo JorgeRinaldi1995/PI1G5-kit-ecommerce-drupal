@@ -51,6 +51,8 @@ class KitGridBlock extends BlockBase implements ContainerFactoryPluginInterface 
     return [
       'limit' => 0,
       'columns' => 3,
+      'heading' => 'Mais vendidos',
+      'subheading' => 'Os favoritos de quem já comprou com a gente.',
     ] + parent::defaultConfiguration();
   }
 
@@ -60,6 +62,18 @@ class KitGridBlock extends BlockBase implements ContainerFactoryPluginInterface 
   public function blockForm($form, FormStateInterface $form_state) {
     $form = parent::blockForm($form, $form_state);
     $config = $this->getConfiguration();
+
+    $form['heading'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Heading'),
+      '#default_value' => $config['heading'],
+    ];
+
+    $form['subheading'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Subheading'),
+      '#default_value' => $config['subheading'],
+    ];
 
     $form['limit'] = [
       '#type' => 'number',
@@ -83,6 +97,8 @@ class KitGridBlock extends BlockBase implements ContainerFactoryPluginInterface 
    * {@inheritdoc}
    */
   public function blockSubmit($form, FormStateInterface $form_state): void {
+    $this->configuration['heading'] = (string) $form_state->getValue('heading');
+    $this->configuration['subheading'] = (string) $form_state->getValue('subheading');
     $this->configuration['limit'] = (int) $form_state->getValue('limit');
     $this->configuration['columns'] = (int) $form_state->getValue('columns');
   }
@@ -92,7 +108,13 @@ class KitGridBlock extends BlockBase implements ContainerFactoryPluginInterface 
    */
   public function build(): array {
     $config = $this->getConfiguration();
-    return $this->formBuilder->getForm(KitGridForm::class, (int) $config['limit'], (int) $config['columns']);
+    return $this->formBuilder->getForm(
+      KitGridForm::class,
+      (int) $config['limit'],
+      (int) $config['columns'],
+      (string) $config['heading'],
+      (string) $config['subheading'],
+    );
   }
 
   /**

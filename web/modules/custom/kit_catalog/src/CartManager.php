@@ -105,6 +105,39 @@ class CartManager {
   }
 
   /**
+   * Removes a user's entire kit line from their cart.
+   *
+   * A plain, uid-scoped delete, not wrapped in reserveAgainstProducts()'s
+   * `FOR UPDATE` lock: removing a line only ever *shrinks* total demand, so
+   * it can't invalidate a concurrent add's already-locked read the way
+   * adding new demand could -- that lock exists to keep two writers from
+   * jointly overselling the same stock, not to serialize removals against
+   * each other. Scoped to $uid so one visitor can never remove another's
+   * line, even given a guessed kit ID (kit/product IDs are already public,
+   * visible on every detail page). Removing a line that isn't there (never
+   * existed, or was already removed) is a silent no-op, not an error --
+   * the same idempotent-by-nature shape a DELETE naturally has.
+   */
+  public function removeKitLine(int $uid, int $kitId): void {
+    $this->database->delete('kit_catalog_cart_item')
+      ->condition('uid', $uid)
+      ->condition('kit_id', $kitId)
+      ->execute();
+  }
+
+  /**
+   * Removes a user's entire bare-product line from their cart.
+   *
+   * See removeKitLine()'s docblock -- same reasoning, same table shape.
+   */
+  public function removeProductLine(int $uid, int $productId): void {
+    $this->database->delete('kit_catalog_cart_product_item')
+      ->condition('uid', $uid)
+      ->condition('product_id', $productId)
+      ->execute();
+  }
+
+  /**
    * Runs a unit of work in a database transaction, rolling back on failure.
    *
    * @template T
@@ -436,8 +469,8 @@ class CartManager {
     // the value as strings (PDO's default for numeric columns), which
     // fetchAllKeyed() doesn't correct -- harmless to a caller that just
     // sums them (PHP coerces for arithmetic), but a caller passing one to a
-    // strict_types-declared `int` parameter (as CartPageController does)
-    // would hit a TypeError without this.
+    // strict_types-declared `int` parameter (as CartForm does) would hit a
+    // TypeError without this.
     return array_map('intval', $this->database->select('kit_catalog_cart_item', 'c')
       ->fields('c', ['kit_id', 'quantity'])
       ->condition('uid', $uid)

@@ -70,8 +70,8 @@ class ProductPageController extends ControllerBase {
     $build['detail']['stock'] = [
       '#markup' => '<div class="kit-catalog-detail__stock">'
       . ($can_sell
-        ? $this->t('@count in stock', ['@count' => $product->getStock()])
-        : $this->t('Out of stock'))
+        ? $this->t('@count em estoque', ['@count' => $product->getStock()])
+        : $this->t('Fora de estoque'))
       . '</div>',
     ];
 

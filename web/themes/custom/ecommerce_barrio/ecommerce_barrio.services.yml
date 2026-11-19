@@ -1,0 +1,5 @@
+
+services:
+  Drupal\ecommerce_barrio\Hook\EcommerceBarrioHooks:
+    class: Drupal\ecommerce_barrio\Hook\EcommerceBarrioHooks
+    autowire: true

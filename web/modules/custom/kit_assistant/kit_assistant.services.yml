@@ -1,0 +1,20 @@
+services:
+  kit_assistant.openai_client:
+    class: Drupal\kit_assistant\OpenAiClient
+    arguments: ['@http_client', '@config.factory', '@logger.channel.kit_assistant']
+
+  kit_assistant.catalog_tools:
+    class: Drupal\kit_assistant\CatalogTools
+    arguments: ['@entity_type.manager', '@product_kit.price_formatter', '@kit_catalog.cart_manager']
+
+  kit_assistant.conversation_store:
+    class: Drupal\kit_assistant\ConversationStore
+    arguments: ['@tempstore.private', '@config.factory']
+
+  kit_assistant.assistant:
+    class: Drupal\kit_assistant\Assistant
+    arguments: ['@kit_assistant.openai_client', '@kit_assistant.catalog_tools', '@kit_assistant.conversation_store', '@config.factory', '@logger.channel.kit_assistant']
+
+  logger.channel.kit_assistant:
+    parent: logger.channel_base
+    arguments: ['kit_assistant']

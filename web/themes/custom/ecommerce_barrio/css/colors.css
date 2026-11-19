@@ -1,0 +1,107 @@
+/**
+ * @file
+ * "kit.ecommerce" palette -- clean white/black storefront with one blue
+ * accent, replacing the earlier soft-lavender scheme to match the supplied
+ * design files (Home — desktop@1x.png / Home — mobile@1x.png).
+ */
+
+:root {
+  --ecb-bg: #ffffff;
+  --ecb-surface: #ffffff;
+  --ecb-surface-alt: #f2f1f5;
+  --ecb-primary: #2f3fe0;
+  --ecb-primary-dark: #212dad;
+  --ecb-text: #141417;
+  --ecb-muted: #6b6b76;
+  --ecb-border: #e6e5ea;
+  --ecb-black: #0d0d10;
+  --ecb-promo-from: #dde2fb;
+  --ecb-promo-to: #aab8f5;
+}
+
+body {
+  color: var(--ecb-text);
+  background: var(--ecb-bg);
+}
+
+#page,
+#main-wrapper {
+  background: var(--ecb-surface);
+}
+
+#navbar-main {
+  background-color: var(--ecb-surface);
+  border-bottom: 1px solid var(--ecb-border);
+}
+
+.categories-nav {
+  background-color: var(--ecb-surface);
+}
+
+a,
+.link {
+  color: var(--ecb-primary);
+}
+
+a:hover,
+a:focus,
+.link:hover,
+.link:focus {
+  color: var(--ecb-primary-dark);
+}
+
+.nav-link {
+  color: var(--ecb-text);
+}
+
+.nav-link:hover,
+.nav-link:focus {
+  color: var(--ecb-primary);
+}
+
+.btn-primary {
+  background-color: var(--ecb-primary);
+  border-color: var(--ecb-primary);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--ecb-primary-dark);
+  border-color: var(--ecb-primary-dark);
+}
+
+.site-footer {
+  background: var(--ecb-surface-alt);
+  color: var(--ecb-text);
+}
+
+/* Barrio's own site-footer.css assumes the classic black footer
+ * (`.site-footer { background: black; }`) and sets `.content`/`.content a`
+ * to near-white rgba() text for it -- both more specific (two classes)
+ * than the single-class override above, so they'd otherwise win and
+ * render near-invisible text on this theme's light footer. */
+.site-footer .content,
+.site-footer .content a {
+  color: var(--ecb-text);
+}
+
+.site-footer .content a:hover,
+.site-footer .content a:focus {
+  color: var(--ecb-primary);
+}
+
+/* ---------- Color Form (unchanged from Barrio) ----------- */
+
+[dir="rtl"] .color-form .color-palette {
+  margin-left: 0;
+  margin-right: 20px;
+}
+
+[dir="rtl"] .color-form .form-item label {
+  float: right;
+}
+
+[dir="rtl"] .color-form .color-palette .lock {
+  right: -20px;
+  left: 0;
+}

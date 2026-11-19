@@ -171,6 +171,21 @@ class Kit extends ContentEntityBase implements KitInterface {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    // Same pattern as Product::baseFieldDefinitions()'s `image`, its own
+    // directory so the two don't collide on the same year/month folder.
+    $fields['image'] = BaseFieldDefinition::create('image')
+      ->setLabel(new TranslatableMarkup('Image'))
+      ->setSettings([
+        'file_directory' => 'kits/[date:custom:Y]-[date:custom:m]',
+        'file_extensions' => 'png jpg jpeg gif webp',
+        'alt_field' => TRUE,
+        'alt_field_required' => FALSE,
+      ])
+      ->setDisplayOptions('form', ['type' => 'image_image', 'weight' => 3])
+      ->setDisplayOptions('view', ['type' => 'image', 'weight' => 3])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
     $fields['items'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(new TranslatableMarkup('Products'))
       ->setDescription(new TranslatableMarkup('The kit_product lines that make up this kit.'))

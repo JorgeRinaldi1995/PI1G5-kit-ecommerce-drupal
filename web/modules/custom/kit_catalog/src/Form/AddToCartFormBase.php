@@ -87,7 +87,7 @@ abstract class AddToCartFormBase extends FormBase {
     if (!$this->currentUser->isAuthenticated()) {
       $form['login'] = [
         '#type' => 'link',
-        '#title' => $this->t('Log in to add to cart'),
+        '#title' => $this->t('Entrar para comprar'),
         '#url' => Url::fromRoute('user.login', [], ['query' => $this->getDestinationArray()]),
         '#attributes' => ['class' => ['kit-catalog-card__cta', 'kit-catalog-card__cta--login', 'button']],
       ];
@@ -108,7 +108,7 @@ abstract class AddToCartFormBase extends FormBase {
 
     $form['add_to_cart'] = [
       '#type' => 'submit',
-      '#value' => $can_sell ? $this->t('Add to cart') : $this->t('Out of stock'),
+      '#value' => $can_sell ? $this->t('Adicionar ao carrinho') : $this->t('Fora de estoque'),
       '#disabled' => !$can_sell,
       '#attributes' => ['class' => ['kit-catalog-card__cta']],
       '#ajax' => [
@@ -134,7 +134,7 @@ abstract class AddToCartFormBase extends FormBase {
     $count = $this->cartManager->getItemCount($uid);
     return [
       '#type' => 'link',
-      '#title' => $this->formatPlural($count, 'Cart: @count item', 'Cart: @count items'),
+      '#title' => $this->formatPlural($count, 'Carrinho: @count item', 'Carrinho: @count itens'),
       '#url' => Url::fromRoute('kit_catalog.cart_page'),
       '#attributes' => ['class' => ['kit-catalog-card__cart-summary']],
     ];
@@ -148,7 +148,7 @@ abstract class AddToCartFormBase extends FormBase {
     // button (see buildForm()), but a crafted request could still try to
     // trigger this.
     if (!$this->currentUser->isAuthenticated()) {
-      $this->messenger()->addError($this->t('Log in to add items to your cart.'));
+      $this->messenger()->addError($this->t('Entre para adicionar itens ao carrinho.'));
       $form_state->setRebuild();
       return;
     }
@@ -156,11 +156,11 @@ abstract class AddToCartFormBase extends FormBase {
     $token = (string) $form_state->getValue('token', '');
 
     if (!$this->canBeSold()) {
-      $this->messenger()->addError($this->t('That item is no longer available.'));
+      $this->messenger()->addError($this->t('Esse item não está mais disponível.'));
     }
     elseif ($token === '') {
       // Only reachable via a request that skipped buildForm()'s markup.
-      $this->messenger()->addError($this->t('Could not add that item to your cart. Please try again.'));
+      $this->messenger()->addError($this->t('Não foi possível adicionar esse item ao carrinho. Tente novamente.'));
     }
     else {
       $this->reportResult($this->addToCart((int) $this->currentUser->id(), $token));
@@ -181,18 +181,18 @@ abstract class AddToCartFormBase extends FormBase {
   protected function reportResult(array $result): void {
     switch ($result['status']) {
       case 'added':
-        $this->messenger()->addStatus($this->t('%item added to cart.', ['%item' => $this->itemLabel()]));
+        $this->messenger()->addStatus($this->t('%item adicionado ao carrinho.', ['%item' => $this->itemLabel()]));
         break;
 
       case 'insufficient_stock':
-        $this->messenger()->addError($this->t('Only @available more unit(s) of %item can be added right now.', [
+        $this->messenger()->addError($this->t('Só é possível adicionar mais @available unidade(s) de %item agora.', [
           '@available' => $result['available'] ?? 0,
           '%item' => $this->itemLabel(),
         ]));
         break;
 
       default:
-        $this->messenger()->addError($this->t('That item is no longer available.'));
+        $this->messenger()->addError($this->t('Esse item não está mais disponível.'));
     }
   }
 

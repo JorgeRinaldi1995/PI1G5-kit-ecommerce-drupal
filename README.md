@@ -1,7 +1,7 @@
 # drupal-ecommerce
 
 A Drupal 11 storefront for selling **products** and **kits** (bundles of
-products), built as two custom modules on top of a standard
+products), built as three custom modules on top of a standard
 `drupal/recommended-project` install.
 
 Kit price and stock are never stored — they are derived from the products in
@@ -43,9 +43,9 @@ ddev drush pm:enable product_kit kit_catalog -y
 
 ## Custom modules
 
-Both live in [web/modules/custom/](web/modules/custom/). Each has its own
-README with the full design notes — those are the authoritative docs; this
-file is only the overview.
+All three live in [web/modules/custom/](web/modules/custom/). Each has its
+own README with the full design notes — those are the authoritative docs;
+this file is only the overview.
 
 ### [product_kit](web/modules/custom/product_kit/README.md) — catalogue
 
@@ -72,7 +72,7 @@ PRODUCT ──< KIT_PRODUCT >── KIT
 
 * **Kits grid** block (`kit_catalog_grid`), configurable count and columns.
 * Detail and purchase pages for kits and products, each with **Add to cart**.
-* A per-user, read-only cart summary.
+* A per-user cart summary, with a button to remove a line entirely.
 * Adding to cart **requires login**.
 * **Shared-stock safe**: a product used by several kits, or sold on its own,
   is one shared pool. Adding to cart locks the affected product rows
@@ -80,6 +80,18 @@ PRODUCT ──< KIT_PRODUCT >── KIT
   oversell.
 * **Idempotent**: every click carries a token; a retried request replays its
   original outcome instead of reserving twice.
+
+### [kit_assistant](web/modules/custom/kit_assistant/README.md) — chat assistant
+
+* "Cleiton", an OpenAI-backed chat widget (floating bubble, every page)
+  that recommends kits and can add them to the visitor's cart — through
+  `kit_catalog`'s own `CartManager`, not a second cart implementation.
+* Tool-calling (OpenAI function calling) bounded to 5 read/write-your-own-
+  cart tools; no arbitrary access to anything else.
+* Input and output moderation, plus a system-prompt domain restriction,
+  on every turn.
+* Requires an `OPENAI_API_KEY` (environment variable, never committed —
+  see that module's README, "Setting it up").
 
 ## Routes
 
@@ -91,10 +103,12 @@ PRODUCT ──< KIT_PRODUCT >── KIT
 | `/cart` | Cart summary (kits + products, subtotals, total) | logged-in users |
 | `/admin/product-kit` | Catalogue admin | `administer product kit` |
 | `/admin/structure/product-kit/{product,kit,kit-line}` | Entity settings | `administer product kit` |
+| `/kit-assistant/{token,message,reset}` | Chat widget JSON endpoints | public (cart tools self-gate on login) |
+| `/admin/config/content/kit-assistant` | Chat assistant settings | `administer site configuration` |
 
 ## Running the tests
 
-`kit_catalog` has a Kernel test suite (12 tests on `CartManager`: stock
+`kit_catalog` has a Kernel test suite (16 tests on `CartManager`: stock
 arithmetic, idempotent replay, shared-stock regressions and a two-session
 `FOR UPDATE` lock test).
 
@@ -115,8 +129,9 @@ ddev exec vendor/bin/phpcs --standard=Drupal,DrupalPractice web/modules/custom
 
 ## Not built yet / known limitations
 
-* **No checkout**: no orders, no stock decrement, no remove or edit in the
-  cart. When it is built, decrement stock with one atomic conditional
+* **No checkout**: no orders, no stock decrement, no quantity edit in the
+  cart (a line can be removed entirely, but not partially). When it is
+  built, decrement stock with one atomic conditional
   `UPDATE` per product in a single transaction, and snapshot the price on
   the order (see `product_kit`'s README).
 * **Cart reservations never expire**: an abandoned cart keeps its stock

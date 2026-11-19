@@ -267,6 +267,71 @@ class CartManagerTest extends KernelTestBase {
   }
 
   /**
+   * @covers \Drupal\kit_catalog\CartManager::removeKitLine
+   */
+  public function testRemoveKitLine(): void {
+    $product = $this->createProduct(stock: 5);
+    $kit = $this->createKit([(int) $product->id() => 1]);
+    $cart = $this->cartManager();
+
+    $cart->addKitToCart(1, (int) $kit->id(), 'tok-1', 2);
+    $this->assertSame([(int) $kit->id() => 2], $cart->getKitItems(1));
+
+    $cart->removeKitLine(1, (int) $kit->id());
+
+    $this->assertSame([], $cart->getKitItems(1));
+    // The reservation is given back, not just hidden: a fresh add can
+    // claim the full stock again.
+    $this->assertSame(['status' => 'added'], $cart->addKitToCart(1, (int) $kit->id(), 'tok-2', 5));
+  }
+
+  /**
+   * @covers \Drupal\kit_catalog\CartManager::removeProductLine
+   */
+  public function testRemoveProductLine(): void {
+    $product = $this->createProduct(stock: 5);
+    $cart = $this->cartManager();
+
+    $cart->addProductToCart(1, (int) $product->id(), 'tok-1', 3);
+    $this->assertSame([(int) $product->id() => 3], $cart->getProductItems(1));
+
+    $cart->removeProductLine(1, (int) $product->id());
+
+    $this->assertSame([], $cart->getProductItems(1));
+  }
+
+  /**
+   * Removing a line scoped to the wrong user is a silent no-op -- one
+   * visitor can never delete another's reservation, even given a known
+   * (public) kit/product ID.
+   */
+  public function testRemoveLineIsScopedToOwner(): void {
+    $product = $this->createProduct(stock: 5);
+    $kit = $this->createKit([(int) $product->id() => 1]);
+    $cart = $this->cartManager();
+
+    $cart->addKitToCart(1, (int) $kit->id(), 'tok-1', 2);
+
+    $cart->removeKitLine(2, (int) $kit->id());
+
+    $this->assertSame([(int) $kit->id() => 2], $cart->getKitItems(1));
+  }
+
+  /**
+   * Removing a line that was never there (or already removed) is a
+   * harmless no-op, not an error -- the natural shape of a DELETE.
+   */
+  public function testRemoveNonexistentLineIsNoop(): void {
+    $cart = $this->cartManager();
+
+    $cart->removeKitLine(1, 999999);
+    $cart->removeProductLine(1, 999999);
+
+    $this->assertSame([], $cart->getKitItems(1));
+    $this->assertSame([], $cart->getProductItems(1));
+  }
+
+  /**
    * getItemCount() sums both tables for one user.
    */
   public function testGetItemCountSumsBothTables(): void {

@@ -1,0 +1,8 @@
+name: 'Kit Assistant'
+type: module
+description: 'Cleiton, the storefront chat assistant -- OpenAI-backed, tool-calling into product_kit/kit_catalog to recommend kits and build the cart.'
+package: Product Kit
+core_version_requirement: ^11
+dependencies:
+  - product_kit:product_kit
+  - kit_catalog:kit_catalog

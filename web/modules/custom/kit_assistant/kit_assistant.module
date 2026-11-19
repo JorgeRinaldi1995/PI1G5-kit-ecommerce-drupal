@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * @file
+ * Hooks for the Kit Assistant module.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_theme().
+ */
+function kit_assistant_theme(array $existing, string $type, string $theme, string $path): array {
+  return [
+    'kit_assistant_widget' => [
+      'variables' => [],
+    ],
+  ];
+}

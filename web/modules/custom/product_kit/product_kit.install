@@ -109,3 +109,22 @@ function product_kit_update_10004(): string {
 
   return (string) t('Unique key on kit_product(kit, product) added; @count duplicate line(s) merged.', ['@count' => $merged]);
 }
+
+/**
+ * Adds the `image` field to `kit`, same field type `product` already has.
+ *
+ * Idempotent: a site that already has the column (picked up by a fresh
+ * install running the current baseFieldDefinitions()) is skipped.
+ */
+function product_kit_update_10005(): string {
+  $update_manager = \Drupal::entityDefinitionUpdateManager();
+  if ($update_manager->getFieldStorageDefinition('image', 'kit')) {
+    return (string) t('kit.image field: nothing to do (already installed)');
+  }
+
+  $entity_type = $update_manager->getEntityType('kit');
+  $field_definitions = \Drupal\product_kit\Entity\Kit::baseFieldDefinitions($entity_type);
+  $update_manager->installFieldStorageDefinition('image', 'kit', 'product_kit', $field_definitions['image']);
+
+  return (string) t('kit.image field installed.');
+}

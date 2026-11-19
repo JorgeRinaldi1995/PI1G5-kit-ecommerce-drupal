@@ -57,6 +57,10 @@ class KitPageController extends ControllerBase {
       '#attributes' => ['class' => ['kit-catalog-detail']],
     ];
 
+    if (!$kit->get('image')->isEmpty()) {
+      $build['detail']['image'] = $kit->get('image')->view(['label' => 'hidden', 'type' => 'image']);
+    }
+
     $description = (string) $kit->get('description')->value;
     if ($description !== '') {
       $build['detail']['description'] = [
@@ -72,8 +76,8 @@ class KitPageController extends ControllerBase {
     $build['detail']['stock'] = [
       '#markup' => '<div class="kit-catalog-detail__stock">'
       . ($can_sell
-        ? $this->t('@count in stock', ['@count' => $kit->getStock()])
-        : $this->t('Out of stock'))
+        ? $this->t('@count em estoque', ['@count' => $kit->getStock()])
+        : $this->t('Fora de estoque'))
       . '</div>',
     ];
 
@@ -82,7 +86,7 @@ class KitPageController extends ControllerBase {
       $product = $line->getProduct();
       $label = $product
         ? $this->t('@qty × @name', ['@qty' => $line->getQuantity(), '@name' => $product->label()])
-        : $this->t('@qty × (missing product)', ['@qty' => $line->getQuantity()]);
+        : $this->t('@qty × (produto removido)', ['@qty' => $line->getQuantity()]);
 
       $items[] = ($product && $product->access('view'))
         ? [
@@ -96,7 +100,7 @@ class KitPageController extends ControllerBase {
     if ($items) {
       $build['detail']['products'] = [
         '#theme' => 'item_list',
-        '#title' => $this->t('What is in this kit'),
+        '#title' => $this->t('O que vem neste kit'),
         '#items' => $items,
         '#attributes' => ['class' => ['kit-catalog-detail__products']],
       ];

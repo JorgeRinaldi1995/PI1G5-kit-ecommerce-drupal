@@ -38,8 +38,10 @@ kit_catalog.storefront:
 kit_catalog.cart_page:
   path: '/cart'
   defaults:
-    _controller: 'Drupal\kit_catalog\Controller\CartPageController::view'
-    _title: 'Your cart'
+    # A Form, not a controller -- the table's "Remover" buttons need a
+    # real, CSRF-protected submit; see CartForm's docblock.
+    _form: '\Drupal\kit_catalog\Form\CartForm'
+    _title: 'Seu carrinho'
   requirements:
     # The cart itself has no meaning for a visitor who was never allowed to
     # add anything to it in the first place -- same login requirement as
